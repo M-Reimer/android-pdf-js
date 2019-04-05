@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "PDF Viewer",
+  "name": "Android PDF.js",
   "version": "1.0.0",
-  "description": "Uses HTML5 to display PDF files directly in the browser.",
+  "description": "Opens PDF files on Firefox for Android using PDF.js.",
 
   "applications": {
     "gecko": {
