@@ -3,6 +3,13 @@
   "name": "PDF Viewer",
   "version": "1.0.0",
   "description": "Uses HTML5 to display PDF files directly in the browser.",
+
+  "applications": {
+    "gecko": {
+      "id": "{7a4b4ee5-e5af-4a20-b179-d42ec510f3e8}"
+    }
+  },
+
   "icons": {
     "128": "icon128.png",
     "48": "icon48.png",
