@@ -1,0 +1,21 @@
+diff --git a/web/viewer.js b/web/viewer.js
+index cbcd4f3..52cb628 100644
+--- a/web/viewer.js
++++ b/web/viewer.js
+@@ -1763,9 +1763,6 @@ var validateFileURL;
+           origin = _ref8.origin,
+           protocol = _ref8.protocol;
+ 
+-      if (origin !== viewerOrigin && protocol !== 'blob:') {
+-        throw new Error('file origin does not match viewer\'s');
+-      }
+     } catch (ex) {
+       var message = ex && ex.message;
+       PDFViewerApplication.l10n.get('loading_error', null, 'An error occurred while loading the PDF.').then(function (loadingErrorMessage) {
+@@ -15530,4 +15527,4 @@ _app.PDFPrintServiceFactory.instance = {
+ 
+ /***/ })
+ /******/ ]);
+-//# sourceMappingURL=viewer.js.map
+\ No newline at end of file
++//# sourceMappingURL=viewer.js.map
