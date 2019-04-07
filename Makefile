@@ -26,6 +26,9 @@ release: android-pdfjs-$(VERSION).xpi
 %.xpi: $(FILES) content
 	@zip -r9 - $^ > $@
 
+# I don't want to mess with building PDF.js on my own.
+# This gives us a "web build" of PDF.js without any browser specific messaging.
+# To get things to work, a patch is added to remove the origin check.
 content:
 	wget 'https://github.com/mozilla/pdf.js/archive/gh-pages.zip'
 	unzip gh-pages.zip
