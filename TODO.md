@@ -3,3 +3,4 @@
 - Access to "file://"-URLs seems to fail on Firefox. Couldn't find any way to fix this. If there is no fix, then the whole code for "file:" can go.
 - Do we need "restoretab.html" and "restoretab.js" for Firefox?
 - When temporarily loading our Addon, then the first PDF requests aren't redirected. Is this a bug that needs fixing?
+- The "pageAction" doesn't work on Desktop-Firefox and isn't visible on Firefox for Android at all. Fix or remove.
