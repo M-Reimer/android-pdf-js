@@ -1,0 +1,1 @@
+- Make "options" work or just completely remove the whole options page.
