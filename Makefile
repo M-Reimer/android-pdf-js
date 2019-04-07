@@ -7,7 +7,7 @@ FILES = manifest.json \
         contentscript.js \
         contentstyle.css \
         extension-router.js \
-        $(wildcard icon*.png) \
+        icon.svg \
         $(wildcard options/options.*) \
         $(wildcard pageAction/*) \
         pdfHandler.html \
