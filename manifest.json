@@ -27,7 +27,6 @@
       "http://*/*",
       "https://*/*",
       "ftp://*/*",
-      "file://*/*"
     ],
     "run_at": "document_start",
     "all_frames": true,

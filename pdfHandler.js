@@ -168,32 +168,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   },
   ['blocking']);
 
-chrome.extension.isAllowedFileSchemeAccess(function(isAllowedAccess) {
-  if (isAllowedAccess) {
-    return;
-  }
-  // If the user has not granted access to file:-URLs, then the webRequest API
-  // will not catch the request. It is still visible through the webNavigation
-  // API though, and we can replace the tab with the viewer.
-  // The viewer will detect that it has no access to file:-URLs, and prompt the
-  // user to activate file permissions.
-  chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
-    if (details.frameId === 0 && !isPdfDownloadable(details)) {
-      chrome.tabs.update(details.tabId, {
-        url: getViewerURL(details.url),
-      });
-    }
-  }, {
-    url: [{
-      urlPrefix: 'file://',
-      pathSuffix: '.pdf',
-    }, {
-      urlPrefix: 'file://',
-      pathSuffix: '.PDF',
-    }],
-  });
-});
-
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message && message.action === 'getParentOrigin') {
     // getParentOrigin is used to determine whether it is safe to embed a
