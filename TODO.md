@@ -1,6 +1,4 @@
-- Make "options" work or just completely remove the whole options page.
 - Review the permissions we request after wanted features are fixed and unwanted features are removed. Most probably some permissions can go.
 - Do we need "restoretab.html" and "restoretab.js" for Firefox?
-- When temporarily loading our Addon, then the first PDF requests aren't redirected. Is this a bug that needs fixing?
 - The "pageAction" doesn't work on Desktop-Firefox and isn't visible on Firefox for Android at all. Fix or remove.
 - Test out https://gist.github.com/squallstar/1d720e93eabe7f60dc61b547d2c19228 for "pinch to zoom". Maybe add this optionally, disabled by default, enableable in Addon settings.
