@@ -1,4 +1,5 @@
 /*
+Copyright 2019 Manuel Reimer <manuel.reimer@gmx.de>
 Copyright 2012 Mozilla Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -128,6 +129,8 @@ chrome.webRequest.onHeadersReceived.addListener(
 
     // Implemented in preserve-referer.js
     saveReferer(details);
+    // HACK: Add this to our cache. Workaround for Bug 1543018. See below.
+    AddToCache(details.url);
 
     return { redirectUrl: viewerUrl, };
   },
@@ -138,3 +141,73 @@ chrome.webRequest.onHeadersReceived.addListener(
     types: ['main_frame', 'sub_frame'],
   },
   ['blocking', 'responseHeaders']);
+
+
+
+//
+// HACK!!!
+// Workaround for https://bugzil.la/1543018 follows
+//
+// Note: This implementation expects that that every GET request has at least
+//       some "file ID" in its parameters, so we can at least be sure that the
+//       URL will always point to the same file type (even if the contents
+//       change).
+//       If this is not the case, we will have to make this code smarter in
+//       future
+//
+
+// Fetch saved URL's from storage
+let gURLCache = [];
+browser.storage.local.get("urlcache").then((items) => {
+  if (items.urlcache)
+    gURLCache = items.urlcache;
+});
+
+// Adds one URL to the cache
+function AddToCache(aURL) {
+  // Add new URL to the front of our cache array
+  gURLCache.unshift(aURL);
+
+  // Limit array size to 100 entries
+  while(gURLCache.length > 100)
+    gURLCache.pop();
+
+  // Save to storage
+  browser.storage.local.set({urlcache: gURLCache});
+}
+
+// Clears Cache
+function ClearCache() {
+  gURLCache = [];
+  browser.storage.local.set({urlcache: gURLCache});
+}
+
+// "onBeforeRequest" is not affected by Bug 1543018. We can redirect here if we
+// know that the URL will open a PDF file (that's what our "cache" is for).
+browser.webRequest.onBeforeRequest.addListener((details) => {
+  if (details.method !== 'GET')
+    return;
+
+  // Search URL in cache
+  const cacheindex = gURLCache.findIndex((e) => {return e === details.url});
+
+  // If the URL is not known, then don't do anything
+  if (cacheindex === -1)
+    return
+
+  // Sort this URL to the front of our cache array
+  gURLCache.splice(cacheindex, 1);
+  gURLCache.unshift(details.url);
+
+  const viewerUrl = getViewerURL(details.url);
+  //console.log("Cache!!!");
+  return { redirectUrl: viewerUrl };
+},
+{
+  urls: [
+    '<all_urls>'
+  ],
+  types: ['main_frame', 'sub_frame'],
+},
+['blocking']
+);
