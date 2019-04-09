@@ -138,32 +138,3 @@ chrome.webRequest.onHeadersReceived.addListener(
     types: ['main_frame', 'sub_frame'],
   },
   ['blocking', 'responseHeaders']);
-
-chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
-    if (isPdfDownloadable(details)) {
-      return;
-    }
-
-    var viewerUrl = getViewerURL(details.url);
-
-    return { redirectUrl: viewerUrl, };
-  },
-  {
-    urls: [
-      'file://*/*.pdf',
-      'file://*/*.PDF',
-      ...(
-        // Duck-typing: MediaError.prototype.message was added in Chrome 59.
-        MediaError.prototype.hasOwnProperty('message') ? [] :
-        [
-          // Note: Chrome 59 has disabled ftp resource loading by default:
-          // https://www.chromestatus.com/feature/5709390967472128
-          'ftp://*/*.pdf',
-          'ftp://*/*.PDF',
-        ]
-      ),
-    ],
-    types: ['main_frame', 'sub_frame'],
-  },
-  ['blocking']);
