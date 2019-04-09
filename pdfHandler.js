@@ -241,10 +241,3 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
   }
 });
-
-// Remove keys from storage that were once part of the deleted feature-detect.js
-chrome.storage.local.remove([
-  'featureDetectLastUA',
-  'webRequestRedirectUrl',
-  'extensionSupportsFTP',
-]);
