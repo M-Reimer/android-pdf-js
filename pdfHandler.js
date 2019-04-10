@@ -125,14 +125,19 @@ chrome.webRequest.onHeadersReceived.addListener(
       return getHeadersWithContentDispositionAttachment(details);
     }
 
+    // HACK: Add this to our cache. Workaround for Bug 1543018. See below.
+    // We have to exit from here for cached URLs as for some reason redirecting
+    // from onBeforeSendHeaders doesn't prevent onHeadersReceived to be called.
+    if (gURLCache.includes(details.url))
+      return;
+    AddToCache(details.url);
+
     var viewerUrl = getViewerURL(details.url);
 
     // Implemented in preserve-referer.js
     saveReferer(details);
-    // HACK: Add this to our cache. Workaround for Bug 1543018. See below.
-    AddToCache(details.url);
 
-    return { redirectUrl: viewerUrl, };
+    return { redirectUrl: viewerUrl };
   },
   {
     urls: [
@@ -182,14 +187,17 @@ function ClearCache() {
   browser.storage.local.set({urlcache: gURLCache});
 }
 
-// "onBeforeRequest" is not affected by Bug 1543018. We can redirect here if we
-// know that the URL will open a PDF file (that's what our "cache" is for).
-browser.webRequest.onBeforeRequest.addListener((details) => {
+// "onBeforeRequest" and "onBeforeSendHeaders" don't seem to be affected by
+// Bug 1543018.
+// We can redirect there if we know that the URL will open a PDF file
+// (that's what our "cache" is for).
+// The event "onBeforeSendHeaders" is used as we have the Referrer there.
+browser.webRequest.onBeforeSendHeaders.addListener((details) => {
   if (details.method !== 'GET')
     return;
 
   // Search URL in cache
-  const cacheindex = gURLCache.findIndex((e) => {return e === details.url});
+  const cacheindex = gURLCache.indexOf(details.url);
 
   // If the URL is not known, then don't do anything
   if (cacheindex === -1)
@@ -198,6 +206,11 @@ browser.webRequest.onBeforeRequest.addListener((details) => {
   // Sort this URL to the front of our cache array
   gURLCache.splice(cacheindex, 1);
   gURLCache.unshift(details.url);
+
+  // "saveReferer" included here as the "onSendHeaders" in preserve-referer.js
+  // will not fire if we redirect here.
+  g_requestHeaders[details.requestId] = details.requestHeaders;
+  saveReferer(details);
 
   const viewerUrl = getViewerURL(details.url);
   //console.log("Cache!!!");
@@ -209,5 +222,5 @@ browser.webRequest.onBeforeRequest.addListener((details) => {
   ],
   types: ['main_frame', 'sub_frame'],
 },
-['blocking']
+['blocking', "requestHeaders"]
 );
