@@ -22,3 +22,14 @@ function ResetCache() {
 }
 
 document.getElementById("clear-cache-button").addEventListener("click", ResetCache);
+
+// "Common web APIs" for opening new pages don't work here on Firefox for
+// Android. So we hook onto the <a> elements and open the pages via
+// WebExtensions API.
+const links = document.getElementsByTagName('a');
+for (let index = 0; index < links.length; index++) {
+  links[index].addEventListener("click", (event) => {
+    event.preventDefault();
+    browser.tabs.create({url: event.target.href});
+  });
+}
