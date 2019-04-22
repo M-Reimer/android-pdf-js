@@ -147,25 +147,38 @@ chrome.webRequest.onHeadersReceived.addListener(
   },
   ['blocking', 'responseHeaders']);
 
+
 // In case of a session restore there is a good chance, that our extension was
 // not ready when the first tab was loaded. This results in problems when the
 // last active tab was a tab with a PDF rendered by us.
-// TODO: Still work in progress. If this fixes the problem, remove log messages!
 browser.tabs.query({active: true}).then((tabs) => {
   for (let tab of tabs) {
-    console.log("Active tab found! " + tab.url);
-    console.log("Active tab discarded: " + tab.discarded);
+    // This is the expected case. Active tab has an URL that is in context
+    // of our extension URL.
     if (tab.url.indexOf(browser.extension.getURL('/')) === 0) {
-      console.log("Active tab is ours. Triggering reload.");
+      console.log("Active tab after session restore is ours. Triggering reload.");
       browser.tabs.reload(tab.id);
     }
-    if (tab.url == "about:blank") {
-      console.log("Active tab is blank (potential bug in Firefox). Triggering reload.");
-      browser.tabs.reload(tab.id);
+
+    // And this is https://bugzil.la/1546078 :(
+    // HACK!!!
+    // If the active tab is "about:blank" then wait for it to finish loading.
+    // If it still is "about:blank" then, then trigger reload.
+    if (tab.url === "about:blank") {
+      const waitint = setInterval(() => {
+        browser.tabs.get(tab.id).then((rtab) => {
+          if (rtab.status === "complete") {
+            clearInterval(waitint);
+            if (rtab.url === "about:blank") {
+              console.log("Active tab after session restore is blank (https://bugzil.la/1546078). Triggering reload.");
+              browser.tabs.reload(tab.id);
+            }
+          }
+        });
+      }, 200);
     }
   }
 });
-
 
 //
 // HACK!!!
