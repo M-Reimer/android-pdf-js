@@ -45,7 +45,8 @@ content:
 	rm -r pdf.js-gh-pages
 
 	rm content.build/web/compressed.tracemonkey-pldi-09.pdf
-	patch -p1 -d content.build < pdfjs-origin-fix.patch
+	patch -p1 -d content.build < patches/pdfjs-origin-fix.patch
+	cat patches/pdfjs-pinch-gestures.js >> content.build/web/viewer.js
 	mv content.build content
 
 clean:
