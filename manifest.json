@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Android PDF.js",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Opens PDF files on Firefox for Android using PDF.js.",
 
   "applications": {
