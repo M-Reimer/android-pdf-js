@@ -17,11 +17,15 @@ FILES = manifest.json \
         restoretab.js \
         suppress-update.js
 
+ADDON = android-pdfjs
+
 VERSION = $(shell sed -n  's/^  "version": "\([^"]\+\).*/\1/p' manifest.json)
 
-trunk: android-pdfjs-trunk.xpi
+ANDROIDDEVICE = $(shell adb devices | cut -s -d$$'\t' -f1 | head -n1)
 
-release: android-pdfjs-$(VERSION).xpi
+trunk: $(ADDON)-trunk.xpi
+
+release: $(ADDON)-$(VERSION).xpi
 
 %.xpi: $(FILES) content
 	@zip -r9 - $^ > $@
@@ -45,5 +49,17 @@ content:
 	mv content.build content
 
 clean:
-	rm -f android-pdfjs-*.xpi
+	rm -f $(ADDON)-*.xpi
 	rm -rf content
+
+# Starts local debug session
+run: content
+	web-ext run --bc --pref=pdfjs.disabled=true
+
+# Starts debug session on connected Android device
+arun: content
+	@if [ -z "$(ANDROIDDEVICE)" ]; then \
+	  echo "No android devices found!"; \
+	else \
+	  web-ext run --target=firefox-android --android-device="$(ANDROIDDEVICE)"; \
+	fi
