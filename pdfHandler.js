@@ -147,6 +147,19 @@ chrome.webRequest.onHeadersReceived.addListener(
   },
   ['blocking', 'responseHeaders']);
 
+// In case of a session restore there is a good chance, that our extension was
+// not ready when the first tab was loaded. This results in problems when the
+// last active tab was a tab with a PDF rendered by us.
+// TODO: Still work in progress. If this fixes the problem, remove log messages!
+browser.tabs.query({active: true}).then((tabs) => {
+  for (let tab of tabs) {
+    console.log("Active tab found! " + tab.url);
+    if (tab.url.indexOf(browser.extension.getURL('/')) === 0) {
+      console.log("Active tab is ours. Triggering reload.");
+      browser.tabs.reload(tab.id);
+    }
+  }
+});
 
 
 //
