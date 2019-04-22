@@ -154,8 +154,13 @@ chrome.webRequest.onHeadersReceived.addListener(
 browser.tabs.query({active: true}).then((tabs) => {
   for (let tab of tabs) {
     console.log("Active tab found! " + tab.url);
+    console.log("Active tab discarded: " + tab.discarded);
     if (tab.url.indexOf(browser.extension.getURL('/')) === 0) {
       console.log("Active tab is ours. Triggering reload.");
+      browser.tabs.reload(tab.id);
+    }
+    if (tab.url == "about:blank") {
+      console.log("Active tab is blank (potential bug in Firefox). Triggering reload.");
       browser.tabs.reload(tab.id);
     }
   }
