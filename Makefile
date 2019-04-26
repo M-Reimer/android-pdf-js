@@ -8,8 +8,9 @@ FILES = manifest.json \
         contentstyle.css \
         extension-router.js \
         icon.svg \
-        $(wildcard options/options.*) \
-        $(wildcard pageAction/*) \
+        options/options.html \
+        options/options.js \
+        pageAction/background.js \
         pdfHandler.html \
         pdfHandler.js \
         preserve-referer.js \

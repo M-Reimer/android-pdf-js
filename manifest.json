@@ -46,8 +46,7 @@
       "19": "icon.svg",
       "38": "icon.svg"
     },
-    "default_title": "Show PDF URL",
-    "default_popup": "pageActionPopup.html"
+    "default_title": "Show PDF URL"
   },
   "web_accessible_resources": [
     "content/web/viewer.html",

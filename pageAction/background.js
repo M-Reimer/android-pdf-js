@@ -1,4 +1,5 @@
 /*
+Copyright 2019 Manuel Reimer <manuel.reimer@gmx.de>
 Copyright 2014 Mozilla Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,30 +17,16 @@ limitations under the License.
 
 'use strict';
 
-(function PageActionClosure() {
-  /**
-   * @param {number} tabId - ID of tab where the page action will be shown.
-   * @param {string} url - URL to be displayed in page action.
-   */
-  function showPageAction(tabId, displayUrl) {
-    // rewriteUrlClosure in viewer.js ensures that the URL looks like
-    // chrome-extension://[extensionid]/http://example.com/file.pdf
-    var url = /^chrome-extension:\/\/[a-p]{32}\/([^#]+)/.exec(displayUrl);
-    if (url) {
-      url = url[1];
-      chrome.pageAction.setPopup({
-        tabId: tabId,
-        popup: '/pageAction/popup.html?file=' + encodeURIComponent(url),
-      });
-      chrome.pageAction.show(tabId);
-    } else {
-      console.log('Unable to get PDF url from ' + displayUrl);
-    }
-  }
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (tab.url.startsWith(browser.extension.getURL('/')))
+    browser.pageAction.show(tabId);
+  else
+    browser.pageAction.hide(tabId);
+});
 
-  chrome.runtime.onMessage.addListener(function(message, sender) {
-    if (message === 'showPageAction' && sender.tab) {
-      showPageAction(sender.tab.id, sender.tab.url);
-    }
-  });
-})();
+browser.pageAction.onClicked.addListener((tab) => {
+  let url = tab.url;
+  url = url.substr(url.indexOf("?file=") + 6);
+  url = decodeURIComponent(url);
+  prompt("Full URL to the PDF file", url);
+});

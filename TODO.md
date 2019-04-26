@@ -1,3 +1,2 @@
 - Review the permissions we request after wanted features are fixed and unwanted features are removed. Most probably some permissions can go.
 - Do we need "restoretab.html" and "restoretab.js" for Firefox?
-- The "pageAction" doesn't work on Desktop-Firefox and isn't visible on Firefox for Android at all. Fix or remove.
