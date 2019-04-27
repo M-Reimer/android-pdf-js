@@ -6,17 +6,12 @@
 FILES = manifest.json \
         contentscript.js \
         contentstyle.css \
-        extension-router.js \
         icon.svg \
         options/options.html \
         options/options.js \
         pageAction/background.js \
-        pdfHandler.html \
         pdfHandler.js \
-        preserve-referer.js \
-        restoretab.html \
-        restoretab.js \
-        suppress-update.js
+        preserve-referer.js
 
 ADDON = android-pdfjs
 
