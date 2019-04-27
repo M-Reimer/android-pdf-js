@@ -39,7 +39,11 @@
     "browser_style": true
   },
   "background": {
-    "page": "pdfHandler.html"
+    "scripts": [
+      "preserve-referer.js",
+      "pdfHandler.js",
+      "pageAction/background.js"
+    ]
   },
   "page_action": {
     "default_icon": {
