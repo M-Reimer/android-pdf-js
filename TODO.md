@@ -1,2 +1,1 @@
 - Review the permissions we request after wanted features are fixed and unwanted features are removed. Most probably some permissions can go.
-- Do we need "restoretab.html" and "restoretab.js" for Firefox?
