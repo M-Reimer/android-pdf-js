@@ -51,7 +51,7 @@ clean:
 
 # Starts local debug session
 run: content
-	web-ext run --bc --pref=pdfjs.disabled=true
+	web-ext run --bc --pref=pdfjs.disabled=true -u "https://github.com/mozilla/pdf.js/blob/gh-pages/web/compressed.tracemonkey-pldi-09.pdf"
 
 # Starts debug session on connected Android device
 arun: content
