@@ -1,6 +1,5 @@
 /*
 Copyright 2019 Manuel Reimer <manuel.reimer@gmx.de>
-Copyright 2014 Mozilla Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,18 +16,10 @@ limitations under the License.
 
 'use strict';
 
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (tab.url.startsWith(browser.extension.getURL('/')))
-    browser.pageAction.show(tabId);
-  else
-    browser.pageAction.hide(tabId);
-});
-
-browser.pageAction.onClicked.addListener((tab) => {
-  let url = tab.url;
-  url = url.substr(url.indexOf("?file=") + 6);
-  url = decodeURIComponent(url);
-  browser.tabs.executeScript(tab.id, {"file": "pageAction/content.js"}).then(() => {
-    browser.tabs.sendMessage(tab.id, {"pdfurl": url});
-  });
-});
+function ShowPrompt(message) {
+  if (message.pdfurl) {
+    browser.runtime.onMessage.removeListener(ShowPrompt);
+    window.prompt("Full URL to the PDF file", message.pdfurl);
+  }
+}
+browser.runtime.onMessage.addListener(ShowPrompt);
