@@ -24,6 +24,23 @@ function getViewerURL(pdf_url) {
   return VIEWER_URL + '?file=' + encodeURIComponent(pdf_url);
 }
 
+function getHTML(pdf_url) {
+  return '<!DOCTYPE html>\
+<html>\
+  <head>\
+    <meta charset="utf-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\
+    <style>\
+      html, body, iframe { height: 100%; width: 100%; border: 0px; padding: 0px; margin: 0px;}\
+      body { overflow: hidden; }\
+    </style>\
+  </head>\
+  <body>\
+    <iframe src="' + getViewerURL(pdf_url) + '" allowfullscreen/>\
+  </body>\
+</html>';
+}
+
 /**
  * @param {Object} details First argument of the webRequest.onHeadersReceived
  *                         event. The property "url" is read.
@@ -125,19 +142,16 @@ chrome.webRequest.onHeadersReceived.addListener(
       return getHeadersWithContentDispositionAttachment(details);
     }
 
-    // HACK: Add this to our cache. Workaround for Bug 1543018. See below.
-    // We have to exit from here for cached URLs as for some reason redirecting
-    // from onBeforeSendHeaders doesn't prevent onHeadersReceived to be called.
-    if (gURLCache.includes(details.url))
-      return;
-    AddToCache(details.url);
-
-    var viewerUrl = getViewerURL(details.url);
-
     // Implemented in preserve-referer.js
     saveReferer(details);
 
-    return { redirectUrl: viewerUrl };
+    const filter = browser.webRequest.filterResponseData(details.requestId);
+    filter.onstart = async () => {
+      const encoder = new TextEncoder();
+      filter.write(encoder.encode(getHTML(details.url)));
+      filter.close();
+    }
+    return { responseHeaders: [ { name: "Content-Type", value: "text/html" } ]};
   },
   {
     urls: [
@@ -179,79 +193,3 @@ browser.tabs.query({active: true}).then((tabs) => {
     }
   }
 });
-
-//
-// HACK!!!
-// Workaround for https://bugzil.la/1543018 follows
-//
-// Note: This implementation expects that that every GET request has at least
-//       some "file ID" in its parameters, so we can at least be sure that the
-//       URL will always point to the same file type (even if the contents
-//       change).
-//       If this is not the case, we will have to make this code smarter in
-//       future
-//
-
-// Fetch saved URL's from storage
-let gURLCache = [];
-browser.storage.local.get("urlcache").then((items) => {
-  if (items.urlcache)
-    gURLCache = items.urlcache;
-});
-
-// Adds one URL to the cache
-function AddToCache(aURL) {
-  // Add new URL to the front of our cache array
-  gURLCache.unshift(aURL);
-
-  // Limit array size to 100 entries
-  while(gURLCache.length > 100)
-    gURLCache.pop();
-
-  // Save to storage
-  browser.storage.local.set({urlcache: gURLCache});
-}
-
-// Clears Cache
-function ClearCache() {
-  gURLCache = [];
-  browser.storage.local.set({urlcache: gURLCache});
-}
-
-// "onBeforeRequest" and "onBeforeSendHeaders" don't seem to be affected by
-// Bug 1543018.
-// We can redirect there if we know that the URL will open a PDF file
-// (that's what our "cache" is for).
-// The event "onBeforeSendHeaders" is used as we have the Referrer there.
-browser.webRequest.onBeforeSendHeaders.addListener((details) => {
-  if (details.method !== 'GET')
-    return;
-
-  // Search URL in cache
-  const cacheindex = gURLCache.indexOf(details.url);
-
-  // If the URL is not known, then don't do anything
-  if (cacheindex === -1)
-    return
-
-  // Sort this URL to the front of our cache array
-  gURLCache.splice(cacheindex, 1);
-  gURLCache.unshift(details.url);
-
-  // "saveReferer" included here as the "onSendHeaders" in preserve-referer.js
-  // will not fire if we redirect here.
-  g_requestHeaders[details.requestId] = details.requestHeaders;
-  saveReferer(details);
-
-  const viewerUrl = getViewerURL(details.url);
-  //console.log("Cache!!!");
-  return { redirectUrl: viewerUrl };
-},
-{
-  urls: [
-    '<all_urls>'
-  ],
-  types: ['main_frame', 'sub_frame'],
-},
-['blocking', "requestHeaders"]
-);
