@@ -16,10 +16,9 @@ limitations under the License.
 
 'use strict';
 
-function ShowPrompt(message) {
-  if (message.pdfurl) {
-    browser.runtime.onMessage.removeListener(ShowPrompt);
-    window.prompt("Full URL to the PDF file", message.pdfurl);
-  }
-}
-browser.runtime.onMessage.addListener(ShowPrompt);
+(function ShowPrompt() {
+  const params = (new URL(document.location)).searchParams;
+  const pdfurl = params.get('file');
+  if (pdfurl)
+    window.prompt("Full URL to the PDF file", pdfurl);
+})();

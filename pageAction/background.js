@@ -25,10 +25,5 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 browser.pageAction.onClicked.addListener((tab) => {
-  let url = tab.url;
-  url = url.substr(url.indexOf("?file=") + 6);
-  url = decodeURIComponent(url);
-  browser.tabs.executeScript(tab.id, {"file": "pageAction/content.js"}).then(() => {
-    browser.tabs.sendMessage(tab.id, {"pdfurl": url});
-  });
+  browser.tabs.executeScript(tab.id, {"file": "pageAction/content.js"});
 });
