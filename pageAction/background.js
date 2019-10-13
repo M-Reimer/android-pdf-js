@@ -25,5 +25,5 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 browser.pageAction.onClicked.addListener((tab) => {
-  browser.tabs.executeScript(tab.id, {"file": "pageAction/content.js"});
+  browser.tabs.executeScript(tab.id, {"file": browser.extension.getURL("pageAction/content.js")});
 });
