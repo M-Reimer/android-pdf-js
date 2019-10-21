@@ -10,6 +10,7 @@ FILES = manifest.json \
         options/options.html \
         options/options.js \
         pageAction/background.js \
+        pageAction/content.js \
         pdfHandler.js \
         preserve-referer.js
 
