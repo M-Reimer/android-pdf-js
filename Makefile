@@ -43,7 +43,7 @@ content:
 
 	rm content.build/web/compressed.tracemonkey-pldi-09.pdf
 	patch -p1 --no-backup-if-mismatch -d content.build < patches/pdfjs-origin-fix.patch
-	cat patches/pdfjs-pinch-gestures.js >> content.build/web/viewer.js
+	cat patches/pdfjs-pinch-gestures-larsneo.js >> content.build/web/viewer.js
 	mv content.build content
 
 clean:
