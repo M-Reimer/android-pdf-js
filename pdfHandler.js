@@ -20,6 +20,15 @@ limitations under the License.
 
 var VIEWER_URL = chrome.extension.getURL('content/web/viewer.html');
 
+// This function is meant to bypass the "POST blocker" for "known good URLs"
+// Note: If this function returns true, then we handle this URL even if it was
+//       requested via "HTTP POST" *but* PDF.js will fetch it via "HTTP GET"!
+function PostWhitelistedURL(aURL) {
+  if (aURL.startsWith("https://www.pollin.de/productdownloads/"))
+    return true;
+  return false;
+}
+
 // Translates the PDF URL to our "viewer URL"
 function getViewerURL(pdf_url) {
   // Prepare two URL objects to work with
@@ -137,10 +146,9 @@ function getHeadersWithContentDispositionAttachment(details) {
 
 chrome.webRequest.onHeadersReceived.addListener(
   function(details) {
-    if (details.method !== 'GET') {
-      // Don't intercept POST requests until http://crbug.com/104058 is fixed.
+    if (details.method !== 'GET' && !PostWhitelistedURL(details.url))
       return;
-    }
+
     if (!isPdfFile(details)) {
       return;
     }
@@ -248,7 +256,7 @@ function ClearCache() {
 // (that's what our "cache" is for).
 // The event "onBeforeSendHeaders" is used as we have the Referrer there.
 browser.webRequest.onBeforeSendHeaders.addListener((details) => {
-  if (details.method !== 'GET')
+  if (details.method !== 'GET' && !PostWhitelistedURL(details.url))
     return;
 
   // Search URL in cache
