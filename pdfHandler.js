@@ -35,10 +35,12 @@ function getViewerURL(pdf_url) {
   pdfurl.hash = "";
   viewerurl.searchParams.append("file", pdfurl.toString());
 
-  // If available, copy over the "page" variable from the PDF URL hash and add
-  // our own "pagemode" setting to get rid of the sidebar.
-  if (pdfhash.has("page"))
-    viewerhash.append("page", pdfhash.get("page"));
+  // If available, copy over the "page" and "nameddest" options from the PDF URL
+  // hash and add our own "pagemode" setting to get rid of the sidebar.
+  ["page", "nameddest"].forEach((option) => {
+    if (pdfhash.has(option))
+      viewerhash.append(option, pdfhash.get(option));
+  });
   viewerhash.append("pagemode", "none");
 
   // Get the hash into our viewer URL and return the resulting URL as string
