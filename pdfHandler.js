@@ -20,8 +20,30 @@ limitations under the License.
 
 var VIEWER_URL = chrome.extension.getURL('content/web/viewer.html');
 
+// Translates the PDF URL to our "viewer URL"
 function getViewerURL(pdf_url) {
-  return VIEWER_URL + '?file=' + encodeURIComponent(pdf_url);
+  // Prepare two URL objects to work with
+  const pdfurl = new URL(pdf_url);
+  const viewerurl = new URL(VIEWER_URL);
+
+  // Some parameters for PDF.js are passed as a hash which has the same format
+  // as URL parameters. So prepare two URLSearchParams objects to work with
+  const pdfhash = new URLSearchParams(pdfurl.hash.substr(1));
+  const viewerhash = new URLSearchParams();
+
+  // Remove the hash from the PDF URL and use it as the "file" parameter
+  pdfurl.hash = "";
+  viewerurl.searchParams.append("file", pdfurl.toString());
+
+  // If available, copy over the "page" variable from the PDF URL hash and add
+  // our own "pagemode" setting to get rid of the sidebar.
+  if (pdfhash.has("page"))
+    viewerhash.append("page", pdfhash.get("page"));
+  viewerhash.append("pagemode", "none");
+
+  // Get the hash into our viewer URL and return the resulting URL as string
+  viewerurl.hash = viewerhash.toString();
+  return viewerurl.toString();
 }
 
 /**
