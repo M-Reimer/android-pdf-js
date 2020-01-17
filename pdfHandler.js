@@ -20,8 +20,41 @@ limitations under the License.
 
 var VIEWER_URL = chrome.extension.getURL('content/web/viewer.html');
 
+// This function is meant to bypass the "POST blocker" for "known good URLs"
+// Note: If this function returns true, then we handle this URL even if it was
+//       requested via "HTTP POST" *but* PDF.js will fetch it via "HTTP GET"!
+function PostWhitelistedURL(aURL) {
+  if (aURL.startsWith("https://www.pollin.de/productdownloads/"))
+    return true;
+  return false;
+}
+
+// Translates the PDF URL to our "viewer URL"
 function getViewerURL(pdf_url) {
-  return VIEWER_URL + '?file=' + encodeURIComponent(pdf_url);
+  // Prepare two URL objects to work with
+  const pdfurl = new URL(pdf_url);
+  const viewerurl = new URL(VIEWER_URL);
+
+  // Some parameters for PDF.js are passed as a hash which has the same format
+  // as URL parameters. So prepare two URLSearchParams objects to work with
+  const pdfhash = new URLSearchParams(pdfurl.hash.substr(1));
+  const viewerhash = new URLSearchParams();
+
+  // Remove the hash from the PDF URL and use it as the "file" parameter
+  pdfurl.hash = "";
+  viewerurl.searchParams.append("file", pdfurl.toString());
+
+  // If available, copy over the "page" and "nameddest" options from the PDF URL
+  // hash and add our own "pagemode" setting to get rid of the sidebar.
+  ["page", "nameddest"].forEach((option) => {
+    if (pdfhash.has(option))
+      viewerhash.append(option, pdfhash.get(option));
+  });
+  viewerhash.append("pagemode", "none");
+
+  // Get the hash into our viewer URL and return the resulting URL as string
+  viewerurl.hash = viewerhash.toString();
+  return viewerurl.toString();
 }
 
 /**
@@ -113,10 +146,9 @@ function getHeadersWithContentDispositionAttachment(details) {
 
 chrome.webRequest.onHeadersReceived.addListener(
   function(details) {
-    if (details.method !== 'GET') {
-      // Don't intercept POST requests until http://crbug.com/104058 is fixed.
+    if (details.method !== 'GET' && !PostWhitelistedURL(details.url))
       return;
-    }
+
     if (!isPdfFile(details)) {
       return;
     }
@@ -224,7 +256,7 @@ function ClearCache() {
 // (that's what our "cache" is for).
 // The event "onBeforeSendHeaders" is used as we have the Referrer there.
 browser.webRequest.onBeforeSendHeaders.addListener((details) => {
-  if (details.method !== 'GET')
+  if (details.method !== 'GET' && !PostWhitelistedURL(details.url))
     return;
 
   // Search URL in cache
