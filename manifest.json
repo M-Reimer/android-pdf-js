@@ -23,17 +23,13 @@
     "storage"
   ],
   "content_scripts": [{
-    "matches": [
-      "http://*/*",
-      "https://*/*",
-      "ftp://*/*"
-    ],
+    "matches": ["<all_urls>"],
     "run_at": "document_start",
     "all_frames": true,
     "css": ["contentstyle.css"],
     "js": ["contentscript.js"]
   }],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'none'",
   "options_ui": {
     "page": "options/options.html",
     "browser_style": true
@@ -53,15 +49,6 @@
     "default_title": "Show PDF URL"
   },
   "web_accessible_resources": [
-    "content/web/viewer.html",
-    "http:/*",
-    "https:/*",
-    "ftp:/*",
-    "file:/*",
-    "chrome-extension:/*",
-    "blob:*",
-    "data:*",
-    "filesystem:/*",
-    "drive:*"
+    "content/web/viewer.html"
   ]
 }
