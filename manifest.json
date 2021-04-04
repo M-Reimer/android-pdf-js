@@ -30,23 +30,11 @@
     "js": ["contentscript.js"]
   }],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'none'",
-  "options_ui": {
-    "page": "options/options.html",
-    "browser_style": true
-  },
   "background": {
     "scripts": [
       "preserve-referer.js",
-      "pdfHandler.js",
-      "pageAction/background.js"
+      "pdfHandler.js"
     ]
-  },
-  "page_action": {
-    "default_icon": {
-      "19": "icon.svg",
-      "38": "icon.svg"
-    },
-    "default_title": "Show PDF URL"
   },
   "web_accessible_resources": [
     "content/web/viewer.html"

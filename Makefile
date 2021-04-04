@@ -7,10 +7,6 @@ FILES = manifest.json \
         contentscript.js \
         contentstyle.css \
         icon.svg \
-        options/options.html \
-        options/options.js \
-        pageAction/background.js \
-        pageAction/content.js \
         pdfHandler.js \
         preserve-referer.js
 
