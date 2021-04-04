@@ -59,5 +59,5 @@ arun: content
 	@if [ -z "$(ANDROIDDEVICE)" ]; then \
 	  echo "No android devices found!"; \
 	else \
-	  web-ext run --target=firefox-android --android-device="$(ANDROIDDEVICE)"; \
+	  web-ext run --target=firefox-android --firefox-apk=org.mozilla.fenix --android-device="$(ANDROIDDEVICE)"; \
 	fi
