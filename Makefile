@@ -13,6 +13,7 @@ FILES = manifest.json \
 ADDON = android-pdfjs
 
 VERSION = $(shell sed -n  's/^  "version": "\([^"]\+\).*/\1/p' manifest.json)
+PDFJS_VERSION = 2.6.347
 
 ANDROIDDEVICE = $(shell adb devices | cut -s -d$$'\t' -f1 | head -n1)
 
@@ -27,17 +28,11 @@ release: $(ADDON)-$(VERSION).xpi
 # This gives us a "web build" of PDF.js without any browser specific messaging.
 # To get things to work, a patch is added to remove the origin check.
 content:
-	wget 'https://github.com/mozilla/pdf.js/archive/gh-pages.zip'
-	unzip gh-pages.zip
-	rm gh-pages.zip
-
+	wget "https://github.com/mozilla/pdf.js/releases/download/v$(PDFJS_VERSION)/pdfjs-$(PDFJS_VERSION)-dist.zip"
 	rm -rf content.build
-	mkdir -p content.build
-	mv pdf.js-gh-pages/build content.build
-	mv pdf.js-gh-pages/web content.build
-	rm -r pdf.js-gh-pages
+	unzip "pdfjs-$(PDFJS_VERSION)-dist.zip" -d "content.build"
+	rm "pdfjs-$(PDFJS_VERSION)-dist.zip"
 
-	rm content.build/web/compressed.tracemonkey-pldi-09.pdf
 	patch -p1 --no-backup-if-mismatch -d content.build < patches/pdfjs-origin-fix.patch
 	cat patches/pdfjs-pinch-gestures-larsneo.js >> content.build/web/viewer.js
 	mv content.build content

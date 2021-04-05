@@ -1,8 +1,8 @@
 diff --git a/web/viewer.js b/web/viewer.js
-index 96958e8..4f1a93b 100644
+index d899023..6165f90 100644
 --- a/web/viewer.js
 +++ b/web/viewer.js
-@@ -2196,9 +2196,6 @@ let validateFileURL;
+@@ -1935,9 +1935,6 @@ let validateFileURL;
          protocol
        } = new URL(file, window.location.href);
  
@@ -10,12 +10,12 @@ index 96958e8..4f1a93b 100644
 -        throw new Error("file origin does not match viewer's");
 -      }
      } catch (ex) {
-       PDFViewerApplication.l10n.get("loading_error").then(msg => {
-         PDFViewerApplication._documentError(msg, {
-@@ -15110,4 +15107,4 @@ if (document.readyState === "interactive" || document.readyState === "complete")
+       const message = ex && ex.message;
+       PDFViewerApplication.l10n.get("loading_error", null, "An error occurred while loading the PDF.").then(loadingErrorMessage => {
+@@ -13897,4 +13894,4 @@ _app.PDFPrintServiceFactory.instance = {
  
- /******/ })()
- ;
+ /***/ })
+ /******/ ]);
 -//# sourceMappingURL=viewer.js.map
 \ No newline at end of file
 +//# sourceMappingURL=viewer.js.map
