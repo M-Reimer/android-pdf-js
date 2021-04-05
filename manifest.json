@@ -29,7 +29,7 @@
     "css": ["contentstyle.css"],
     "js": ["contentscript.js"]
   }],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'none'",
+  "content_security_policy": "script-src 'self'; object-src 'none'",
   "background": {
     "scripts": [
       "preserve-referer.js",
