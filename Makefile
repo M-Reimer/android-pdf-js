@@ -20,10 +20,10 @@ ANDROIDDEVICE = $(shell adb devices | cut -s -d$$'\t' -f1 | head -n1)
 trunk: $(ADDON)-trunk.xpi
 
 release: $(ADDON)-$(VERSION).xpi
-	echo ""
-	echo "This Add-on contains Mozilla PDF.js as third-party library"
-	echo "Path in Add-on: content/build"
-	echo "Official source archive: https://github.com/mozilla/pdf.js/releases/download/v$(PDFJS_VERSION)/pdfjs-$(PDFJS_VERSION)-dist.zip"
+	@echo ""
+	@echo "This Add-on contains Mozilla PDF.js as third-party library"
+	@echo "Path in Add-on: content/build"
+	@echo "Official source archive: https://github.com/mozilla/pdf.js/releases/download/v$(PDFJS_VERSION)/pdfjs-$(PDFJS_VERSION)-dist.zip"
 
 %.xpi: $(FILES) content
 	@zip -r9 - $^ > $@
