@@ -79,7 +79,7 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
 browser.webRequest.onBeforeSendHeaders.addListener(
   function(details) {
     // Don't mess with any request not done by our extension
-    if (details.originUrl.indexOf(browser.extension.getURL('/'))  !== 0)
+    if (details.originUrl.indexOf(browser.runtime.getURL('/'))  !== 0)
       return;
 
     // Nothing to do if no Referer was saved

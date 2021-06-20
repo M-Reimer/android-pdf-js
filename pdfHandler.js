@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-var VIEWER_URL = chrome.extension.getURL('content/web/viewer.html');
+var VIEWER_URL = browser.runtime.getURL('content/web/viewer.html');
 
 // This function is meant to bypass the "POST blocker" for "known good URLs"
 // Note: If this function returns true, then we handle this URL even if it was
