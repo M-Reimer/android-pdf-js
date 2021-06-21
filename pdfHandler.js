@@ -18,7 +18,6 @@ limitations under the License.
 
 'use strict';
 
-var VIEWER_URL = browser.runtime.getURL('content/web/viewer.html');
 
 // This function is meant to bypass the "POST blocker" for "known good URLs"
 // Note: If this function returns true, then we handle this URL even if it was
@@ -29,50 +28,6 @@ function PostWhitelistedURL(aURL) {
   return false;
 }
 
-// Translates the PDF URL to our "viewer URL"
-function getViewerURL(pdf_url) {
-  // Prepare two URL objects to work with
-  const pdfurl = new URL(pdf_url);
-  const viewerurl = new URL(VIEWER_URL);
-
-  // Some parameters for PDF.js are passed as a hash which has the same format
-  // as URL parameters. So prepare two URLSearchParams objects to work with
-  const pdfhash = new URLSearchParams(pdfurl.hash.substr(1));
-  const viewerhash = new URLSearchParams();
-
-  // Remove the hash from the PDF URL and use it as the "file" parameter
-  pdfurl.hash = "";
-  viewerurl.searchParams.append("file", pdfurl.toString());
-
-  // If available, copy over the "page" and "nameddest" options from the PDF URL
-  // hash and add our own "pagemode" setting to get rid of the sidebar.
-  ["page", "nameddest"].forEach((option) => {
-    if (pdfhash.has(option))
-      viewerhash.append(option, pdfhash.get(option));
-  });
-  viewerhash.append("pagemode", "none");
-
-  // Get the hash into our viewer URL and return the resulting URL as string
-  viewerurl.hash = viewerhash.toString();
-  return viewerurl.toString();
-}
-
-function getHTML(pdf_url) {
-  return '<!DOCTYPE html>\
-<html>\
-  <head>\
-    <meta charset="utf-8">\
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">\
-    <style>\
-      html, body, iframe { height: 100%; width: 100%; border: 0px; padding: 0px; margin: 0px;}\
-      body { overflow: hidden; }\
-    </style>\
-  </head>\
-  <body>\
-    <iframe src="' + getViewerURL(pdf_url) + '" allowfullscreen/>\
-  </body>\
-</html>';
-}
 
 /**
  * @param {Object} details First argument of the webRequest.onHeadersReceived
@@ -161,6 +116,61 @@ function getHeadersWithContentDispositionAttachment(details) {
   }
 }
 
+/**
+ * Helper to read a file shipped with our Add-on.
+ * @return Promise which will be fulfilled with the file contents.
+ */
+async function getAddonFile(aPath) {
+  const url = browser.runtime.getURL(aPath);
+  const response = await fetch(url);
+  return await response.text();
+}
+
+/**
+ * The following function creates a viewer HTML file with all scripts embedded.
+ * This is to avoid web-accessible scripts for security reasons.
+ * This function also slightly patches PDF.js to use its own URL as the PDF URL.
+ * The built HTML code is cached and reused.
+ * @return Promise which will be fulfilled with the viewer HTML
+ */
+let viewer_html_cache = false;
+async function getHTML() {
+  if (!viewer_html_cache) {
+    let txt_html = await getAddonFile('content/web/viewer.html');
+    let txt_viewer_js = await getAddonFile('content/web/viewer.js');
+    const txt_pdf_js = await getAddonFile('content/build/pdf.js');
+    const txt_pdf_worker_js = await getAddonFile('content/build/pdf.worker.js');
+
+    let worker_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_worker_js)));
+    txt_viewer_js = txt_viewer_js.replace(
+      '../build/pdf.worker.js',
+      worker_data
+    ).replace(
+      '"compressed.tracemonkey-pldi-09.pdf"',
+      'document.location.href'
+    );
+
+    txt_html = txt_html.replace(
+      '<script src="../build/pdf.js"></script>',
+      '<script>' + txt_pdf_js + '</script>'
+    ).replace(
+      '<script src="viewer.js"></script>',
+      '<script>' + txt_viewer_js + '</script>'
+    ).replace(
+      'href="viewer.css"',
+      'href="' + browser.runtime.getURL('content/web/viewer.css') + '"'
+    ).replace(
+      'locale/locale.properties',
+      browser.runtime.getURL('content/web/locale/locale.properties')
+    );
+
+    viewer_html_cache = txt_html;
+  }
+
+  return viewer_html_cache
+}
+
+
 chrome.webRequest.onHeadersReceived.addListener(
   function(details) {
     if (details.method !== 'GET' && !PostWhitelistedURL(details.url))
@@ -180,7 +190,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     const filter = browser.webRequest.filterResponseData(details.requestId);
     filter.onstart = async () => {
       const encoder = new TextEncoder();
-      filter.write(encoder.encode(getHTML(details.url)));
+      filter.write(encoder.encode(await getHTML()));
       filter.close();
     }
     return { responseHeaders: [ { name: "Content-Type", value: "text/html" } ]};

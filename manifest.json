@@ -37,6 +37,8 @@
     ]
   },
   "web_accessible_resources": [
-    "content/web/viewer.html"
+    "content/web/viewer.html",
+    "content/web/viewer.css",
+    "content/web/locale/*"
   ]
 }
