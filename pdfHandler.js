@@ -199,6 +199,6 @@ chrome.webRequest.onHeadersReceived.addListener(
     urls: [
       '<all_urls>'
     ],
-    types: ['main_frame', 'sub_frame'],
+    types: ['main_frame', 'sub_frame', 'object'],
   },
   ['blocking', 'responseHeaders']);

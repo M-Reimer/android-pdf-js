@@ -22,13 +22,6 @@
     "webNavigation",
     "storage"
   ],
-  "content_scripts": [{
-    "matches": ["<all_urls>"],
-    "run_at": "document_start",
-    "all_frames": true,
-    "css": ["contentstyle.css"],
-    "js": ["contentscript.js"]
-  }],
   "content_security_policy": "script-src 'self'; object-src 'none'",
   "background": {
     "scripts": [
@@ -37,7 +30,6 @@
     ]
   },
   "web_accessible_resources": [
-    "content/web/viewer.html",
     "content/web/viewer.css",
     "content/web/locale/*"
   ]
