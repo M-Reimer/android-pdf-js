@@ -140,11 +140,16 @@ async function getHTML() {
     let txt_viewer_js = await getAddonFile('content/web/viewer.js');
     const txt_pdf_js = await getAddonFile('content/build/pdf.js');
     const txt_pdf_worker_js = await getAddonFile('content/build/pdf.worker.js');
+    const txt_pdf_sandbox_js = await getAddonFile('content/build/pdf.sandbox.js');
 
-    let worker_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_worker_js)));
+    const worker_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_worker_js)));
+    const sandbox_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_sandbox_js)));
     txt_viewer_js = txt_viewer_js.replace(
       '../build/pdf.worker.js',
       worker_data
+    ).replace(
+      '../build/pdf.sandbox.js',
+      sandbox_data
     ).replace(
       '"compressed.tracemonkey-pldi-09.pdf"',
       'document.location.href'
