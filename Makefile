@@ -30,14 +30,13 @@ release: $(ADDON)-$(VERSION).xpi
 
 # I don't want to mess with building PDF.js on my own.
 # This gives us a "web build" of PDF.js without any browser specific messaging.
-# To get things to work, a patch is added to remove the origin check.
+# We also add a community patch for pinch gestures here.
 content:
 	wget "https://github.com/mozilla/pdf.js/releases/download/v$(PDFJS_VERSION)/pdfjs-$(PDFJS_VERSION)-dist.zip"
 	rm -rf content.build
 	unzip "pdfjs-$(PDFJS_VERSION)-dist.zip" -d "content.build"
 	rm "pdfjs-$(PDFJS_VERSION)-dist.zip"
 
-	patch -p1 --no-backup-if-mismatch -d content.build < patches/pdfjs-origin-fix.patch
 	cat patches/pdfjs-pinch-gestures-larsneo.js >> content.build/web/viewer.js
 	mv content.build content
 
