@@ -31,6 +31,7 @@
   },
   "web_accessible_resources": [
     "content/web/viewer.css",
-    "content/web/locale/*"
+    "content/web/locale/*",
+    "content/web/cmaps/*"
   ]
 }

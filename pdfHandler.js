@@ -151,6 +151,9 @@ async function getHTML() {
       '../build/pdf.sandbox.js',
       sandbox_data
     ).replace(
+      '../web/cmaps/',
+      browser.runtime.getURL('content/web/cmaps/')
+    ).replace(
       '"compressed.tracemonkey-pldi-09.pdf"',
       'document.location.href'
     );
