@@ -34,5 +34,6 @@
     "content/web/viewer.css",
     "content/web/locale/*",
     "content/web/cmaps/*"
-  ]
+  ],
+  "incognito": "not_allowed"
 }
