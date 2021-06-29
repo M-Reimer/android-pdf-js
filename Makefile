@@ -4,9 +4,8 @@
 #
 
 FILES = manifest.json \
-        contentscript.js \
-        contentstyle.css \
         icon.svg \
+        resource-delivery.js \
         pdfHandler.js \
         preserve-referer.js
 

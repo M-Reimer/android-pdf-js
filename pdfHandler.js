@@ -1,5 +1,5 @@
 /*
-Copyright 2019 Manuel Reimer <manuel.reimer@gmx.de>
+Copyright 2021 Manuel Reimer <manuel.reimer@gmx.de>
 Copyright 2012 Mozilla Foundation
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,7 +152,7 @@ async function getHTML() {
       sandbox_data
     ).replace(
       '../web/cmaps/',
-      browser.runtime.getURL('content/web/cmaps/')
+      RESOURCE_URL + '/cmaps/'
     ).replace(
       '"compressed.tracemonkey-pldi-09.pdf"',
       'document.location.href'
@@ -166,10 +166,10 @@ async function getHTML() {
       '<script>' + txt_viewer_js + '</script>'
     ).replace(
       'href="viewer.css"',
-      'href="' + browser.runtime.getURL('content/web/viewer.css') + '"'
+      'href="' + RESOURCE_URL + 'viewer.css"'
     ).replace(
       'locale/locale.properties',
-      browser.runtime.getURL('content/web/locale/locale.properties')
+      RESOURCE_URL + 'locale/locale.properties'
     );
 
     viewer_html_cache = txt_html;
@@ -201,7 +201,8 @@ chrome.webRequest.onHeadersReceived.addListener(
       filter.write(encoder.encode(await getHTML()));
       filter.close();
     }
-    return { responseHeaders: [ { name: "Content-Type", value: "text/html" } ]};
+    return { responseHeaders: [ { name: "Content-Type", value: "text/html" },
+                                { name: "Content-Security-Policy", value: "default-src 'self' https://www.m-reimer.de data:; script-src 'self' 'unsafe-inline' data: blob:; object-src 'none';"} ]};
   },
   {
     urls: [

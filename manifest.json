@@ -25,6 +25,7 @@
   "content_security_policy": "script-src 'self'; object-src 'none'",
   "background": {
     "scripts": [
+      "resource-delivery.js",
       "preserve-referer.js",
       "pdfHandler.js"
     ]
