@@ -34,6 +34,7 @@ content:
 	wget "https://github.com/mozilla/pdf.js/releases/download/v$(PDFJS_VERSION)/pdfjs-$(PDFJS_VERSION)-dist.zip"
 	rm -rf content.build
 	unzip "pdfjs-$(PDFJS_VERSION)-dist.zip" -d "content.build"
+	rm content.build/web/compressed.tracemonkey-pldi-09.pdf
 	rm "pdfjs-$(PDFJS_VERSION)-dist.zip"
 
 	cat patches/pdfjs-pinch-gestures-larsneo.js >> content.build/web/viewer.js
