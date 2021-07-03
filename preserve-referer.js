@@ -16,24 +16,6 @@ limitations under the License.
 /* import-globals-from pdfHandler.js */
 
 'use strict';
-/**
- * This file is one part of the Referer persistency implementation. The other
- * part resides in chromecom.js.
- *
- * This file collects request headers for every http(s) request, and temporarily
- * stores the request headers in a dictionary. Upon completion of the request
- * (success or failure), the headers are discarded.
- * pdfHandler.js will call saveReferer(details) when it is about to redirect to
- * the viewer. Upon calling saveReferer, the Referer header is extracted from
- * the request headers and saved.
- *
- * When the viewer is opened, it opens a port ("chromecom-referrer"). This port
- * is used to set up the webRequest listeners that stick the Referer headers to
- * the HTTP requests created by this extension. When the port is disconnected,
- * the webRequest listeners and the referrer information is discarded.
- *
- * See setReferer in chromecom.js for more explanation of this logic.
- */
 
 // Remembers the request headers for every http(s) page request for the duration
 // of the request.
