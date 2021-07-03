@@ -118,12 +118,35 @@ function getHeadersWithContentDispositionAttachment(details) {
 
 /**
  * Helper to read a file shipped with our Add-on.
+ * @param aPath Path to the file inside our Add-on
  * @return Promise which will be fulfilled with the file contents.
  */
 async function getAddonFile(aPath) {
   const url = browser.runtime.getURL(aPath);
   const response = await fetch(url);
   return await response.text();
+}
+
+/**
+ * Helper to get a script file for embedding directly into the HTML file.
+ * Uses "getAddonFile()" to get the file content and removes sourceMappingURL
+ * @param aPath Path to the file inside our Add-on
+ * @return Promise which will be fulfilled with the file contents.
+ */
+async function getAddonScriptForEmbed(aPath) {
+  let content = await getAddonFile(aPath);
+  return content.replace(/^\/\/# sourceMappingURL=[a-z.]+\.js\.map/m, '');
+}
+
+/**
+ * Helper to get a data:-URL for a script file
+ * Uses "getAddonScriptForEmbed" to get the file and formats it as data:-URL
+ * @param aPath Path to the file inside our Add-on
+ * @return Promise which will be fulfilled with the data:-URL.
+ */
+async function getAddonScriptDataURL(aPath) {
+  let content = await getAddonScriptForEmbed(aPath);
+  return "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(content)));
 }
 
 /**
@@ -136,20 +159,13 @@ async function getAddonFile(aPath) {
 let viewer_html_cache = false;
 async function getHTML() {
   if (!viewer_html_cache) {
-    let txt_html = await getAddonFile('content/web/viewer.html');
-    let txt_viewer_js = await getAddonFile('content/web/viewer.js');
-    const txt_pdf_js = await getAddonFile('content/build/pdf.js');
-    const txt_pdf_worker_js = await getAddonFile('content/build/pdf.worker.js');
-    const txt_pdf_sandbox_js = await getAddonFile('content/build/pdf.sandbox.js');
-
-    const worker_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_worker_js)));
-    const sandbox_data = "data:application/javascript;base64," + btoa(unescape(encodeURIComponent(txt_pdf_sandbox_js)));
+    let txt_viewer_js = await getAddonScriptForEmbed('content/web/viewer.js');
     txt_viewer_js = txt_viewer_js.replace(
       '../build/pdf.worker.js',
-      worker_data
+      await getAddonScriptDataURL('content/build/pdf.worker.js')
     ).replace(
       '../build/pdf.sandbox.js',
-      sandbox_data
+      await getAddonScriptDataURL('content/build/pdf.sandbox.js')
     ).replace(
       '../web/cmaps/',
       RESOURCE_URL + '/cmaps/'
@@ -158,9 +174,10 @@ async function getHTML() {
       'document.location.href'
     );
 
+    let txt_html = await getAddonFile('content/web/viewer.html');
     txt_html = txt_html.replace(
       '<script src="../build/pdf.js"></script>',
-      '<script>' + txt_pdf_js + '</script>'
+      '<script>' + await getAddonScriptForEmbed('content/build/pdf.js') + '</script>'
     ).replace(
       '<script src="viewer.js"></script>',
       '<script>' + txt_viewer_js + '</script>'
