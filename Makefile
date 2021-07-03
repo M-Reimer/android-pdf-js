@@ -35,6 +35,8 @@ content:
 	rm -rf content.build
 	unzip "pdfjs-$(PDFJS_VERSION)-dist.zip" -d "content.build"
 	rm content.build/web/compressed.tracemonkey-pldi-09.pdf
+	rm content.build/web/*.js.map
+	rm content.build/build/*.js.map
 	rm "pdfjs-$(PDFJS_VERSION)-dist.zip"
 
 	cat patches/pdfjs-pinch-gestures-larsneo.js >> content.build/web/viewer.js
