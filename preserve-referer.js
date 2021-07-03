@@ -20,13 +20,13 @@ limitations under the License.
 // Remembers the request headers for every http(s) page request for the duration
 // of the request.
 var g_requestHeaders = {};
-// g_referrers[tabId][frameId] = referrer of PDF frame.
+// g_referrers[tabId][frameId][url] = referrer of PDF frame.
 var g_referrers = {};
 
 (function() {
   var requestFilter = {
-    urls: ['*://*/*'],
-    types: ['main_frame', 'sub_frame'],
+    urls: ['<all_urls>'],
+    types: ['main_frame', 'sub_frame', 'object'],
   };
   chrome.webRequest.onSendHeaders.addListener(function(details) {
     g_requestHeaders[details.requestId] = details.requestHeaders;
@@ -49,7 +49,10 @@ function saveReferer(details) {
   if (!g_referrers[details.tabId]) {
     g_referrers[details.tabId] = {};
   }
-  g_referrers[details.tabId][details.frameId] = referer;
+  if (!g_referrers[details.tabId][details.frameId]) {
+    g_referrers[details.tabId][details.frameId] = {};
+  }
+  g_referrers[details.tabId][details.frameId][details.url] = referer;
 }
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
@@ -60,12 +63,11 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
 // Add the Referer header to the "fetch" request done by PDF.js
 browser.webRequest.onBeforeSendHeaders.addListener(
   function(details) {
-    // Don't mess with any request not done by our extension
-    if (details.originUrl.indexOf(browser.runtime.getURL('/'))  !== 0)
-      return;
-
     // Nothing to do if no Referer was saved
-    var referer = g_referrers[details.tabId] && g_referrers[details.tabId][details.frameId] || '';
+    var referer = g_referrers[details.tabId]
+               && g_referrers[details.tabId][details.frameId]
+               && g_referrers[details.tabId][details.frameId][details.url]
+               || '';
     if (referer === '')
       return;
 
