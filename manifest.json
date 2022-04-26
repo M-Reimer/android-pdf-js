@@ -6,7 +6,8 @@
 
   "applications": {
     "gecko": {
-      "id": "{7a4b4ee5-e5af-4a20-b179-d42ec510f3e8}"
+      "id": "{7a4b4ee5-e5af-4a20-b179-d42ec510f3e8}",
+      "strict_min_version": "70.0"
     }
   },
 
