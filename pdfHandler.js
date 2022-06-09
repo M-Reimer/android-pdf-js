@@ -172,6 +172,9 @@ async function getHTML() {
     ).replace(
       '"compressed.tracemonkey-pldi-09.pdf"',
       'document.location.href'
+    ).replace( // Hide the actual URL parameters from PDF.js
+      'const queryString = document.location.search.substring(1);',
+      'const queryString = "";'
     );
 
     let txt_html = await getAddonFile('content/web/viewer.html');
