@@ -222,7 +222,7 @@ chrome.webRequest.onHeadersReceived.addListener(
       filter.close();
     }
     return { responseHeaders: [ { name: "Content-Type", value: "text/html" },
-                                { name: "Content-Security-Policy", value: "default-src 'self' https://www.m-reimer.de data:; script-src 'self' 'unsafe-inline' data: blob:; object-src 'none';"} ]};
+                                { name: "Content-Security-Policy", value: "default-src 'self' https://www.m-reimer.de data: blob:; script-src 'unsafe-inline' data: blob:; style-src https://www.m-reimer.de 'unsafe-inline'; object-src 'none';"} ]};
   },
   {
     urls: [
